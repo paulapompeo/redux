@@ -1,15 +1,19 @@
 import { Reducer } from "redux";
 import produce from 'immer';
-import { ICartState } from "./types";
+import { ActionTypes, ICartState } from "./types";
 
 const INITIAL_STATE: ICartState = {
-  items: []
+  items: [],
+  failedStockCheck: [],
 }
 
+// estados globais
+// reducer faz tratativas (ex, somar produtos que ja estavam no carrinho), as actions são ações 'secas'
+// reducer ouvir as informacoes diparadas pelas actions e vai fazer as alterações no estado
 const cart: Reducer<ICartState> = (state = INITIAL_STATE, action) => {
   return produce(state, draft => {
     switch (action.type) {
-      case 'ADD_PRODUCT_TO_CART': {
+      case ActionTypes.addProductToCartSuccess: {
         const { product } = action.payload;
 
         const productInCartIndex = draft.items.findIndex(item =>
@@ -37,6 +41,12 @@ const cart: Reducer<ICartState> = (state = INITIAL_STATE, action) => {
         // };
         break;
       }
+      case ActionTypes.addProductToCartFailure: {
+        draft.failedStockCheck.push(action.payload.productId)
+
+        // alert('produto em falta')
+        break;
+      } 
       default: {
         return draft;
       }
